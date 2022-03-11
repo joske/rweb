@@ -30,10 +30,7 @@ async fn server(request: Request<Body>) -> Result<Response<Body>, Infallible> {
         return Ok(Response::new(Body::from(response)));
     }
     let notfound = read_file("404.html").await.unwrap(); // this should exist
-    Ok(Response::builder()
-        .status(404)
-        .body(Body::from(notfound))
-        .unwrap())
+    Ok(Response::builder().status(404).body(Body::from(notfound)).unwrap())
     
 }
 
@@ -46,11 +43,8 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     });
 
     let addr = ([127, 0, 0, 1], 3000).into();
-
     let server = Server::bind(&addr).serve(make_svc);
-
     println!("Listening on http://{}", addr);
-
     server.await?;
 
     Ok(())
