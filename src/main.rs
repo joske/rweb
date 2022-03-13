@@ -31,7 +31,6 @@ async fn server(request: Request<Body>) -> Result<Response<Body>, Infallible> {
     }
     let notfound = read_file("404.html").await.unwrap(); // this should exist
     Ok(Response::builder().status(404).body(Body::from(notfound)).unwrap())
-    
 }
 
 #[tokio::main]
