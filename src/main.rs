@@ -5,9 +5,9 @@ use std::path::Path;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 
-const BASE : &str = "/home/jos/Projects/rweb/html/";
+const BASE: &str = "/home/jos/Projects/rweb/html/";
 
-async fn read_file(uri : &str) -> Result<String, Error> {
+async fn read_file(uri: &str) -> Result<String, Error> {
     println!("request for {}", uri);
     let mut path = String::new();
     path.push_str(BASE);
@@ -30,16 +30,17 @@ async fn server(request: Request<Body>) -> Result<Response<Body>, Infallible> {
         return Ok(Response::new(Body::from(response)));
     }
     let notfound = read_file("404.html").await.unwrap(); // this should exist
-    Ok(Response::builder().status(404).body(Body::from(notfound)).unwrap())
+    Ok(Response::builder()
+        .status(404)
+        .body(Body::from(notfound))
+        .unwrap())
 }
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     pretty_env_logger::init();
 
-    let make_svc = make_service_fn(|_conn| {
-        async { Ok::<_, Infallible>(service_fn(server)) }
-    });
+    let make_svc = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(server)) });
 
     let addr = ([127, 0, 0, 1], 3000).into();
     let server = Server::bind(&addr).serve(make_svc);
