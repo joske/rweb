@@ -11,17 +11,10 @@ const BASE: &str = "/app/html/";
 async fn read_file(uri: &str) -> Result<String, Error> {
     println!("request for {}", uri);
     let mut path = String::new();
-    let mut base = BASE;
-    let a : Vec<String> = args().collect();
-    if a.len() > 1 {
-        base = &a[1];
-        path.push_str(&a[1]);
-        path.push_str("/");
-    } else {
-        path.push_str(BASE);
-    }
+    let base = get_base();
+    path.push_str(base.as_str());
     if uri == "/" {
-        path.push_str("index.html");
+        path.push_str("/index.html");
     } else {
         path.push_str(uri);
     }
@@ -35,12 +28,21 @@ async fn read_file(uri: &str) -> Result<String, Error> {
     Err(Error::from(ErrorKind::NotFound))
 }
 
+fn get_base() -> String {
+    let mut base = BASE;
+    let a: Vec<String> = args().collect();
+    if a.len() > 1 {
+        base = &a[1];
+    }
+    base.to_owned()
+}
+
 async fn server(request: Request<Body>) -> Result<Response<Body>, Infallible> {
     println!("request: {} {}", request.method(), request.uri());
     if let Ok(response) = read_file(request.uri().path()).await {
         return Ok(Response::new(Body::from(response)));
     }
-    let notfound = read_file("404.html").await.unwrap(); // this should exist
+    let notfound = read_file("/404.html").await.unwrap(); // this should exist
     Ok(Response::builder()
         .status(404)
         .body(Body::from(notfound))
