@@ -1,4 +1,5 @@
 use std::convert::Infallible;
+use std::env::args;
 use std::io::{Error, ErrorKind};
 use std::path::Path;
 
@@ -10,15 +11,24 @@ const BASE: &str = "/app/html/";
 async fn read_file(uri: &str) -> Result<String, Error> {
     println!("request for {}", uri);
     let mut path = String::new();
-    path.push_str(BASE);
+    let mut base = BASE;
+    let a : Vec<String> = args().collect();
+    if a.len() > 1 {
+        base = &a[1];
+        path.push_str(&a[1]);
+        path.push_str("/");
+    } else {
+        path.push_str(BASE);
+    }
     if uri == "/" {
         path.push_str("index.html");
     } else {
         path.push_str(uri);
     }
+    println!("path: {}", path);
     if let Ok(p) = Path::new(&path).canonicalize() {
         println!("canonicalized: {:?}", p);
-        if p.exists() && p.starts_with(&BASE) {
+        if p.exists() && p.starts_with(&base) {
             return tokio::fs::read_to_string(path).await;
         }
     }
@@ -26,7 +36,7 @@ async fn read_file(uri: &str) -> Result<String, Error> {
 }
 
 async fn server(request: Request<Body>) -> Result<Response<Body>, Infallible> {
-    println!("request: {:?}", request);
+    println!("request: {} {}", request.method(), request.uri());
     if let Ok(response) = read_file(request.uri().path()).await {
         return Ok(Response::new(Body::from(response)));
     }

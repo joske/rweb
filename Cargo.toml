@@ -9,3 +9,9 @@ edition = "2021"
 tokio = { version = "1.17", features = ["full"] }
 hyper = { version = "0.14", features = ["full"] }
 pretty_env_logger = "0.4"
+
+[profile.dev]
+lto = false
+opt-level = 0
+incremental = true
+debug = true
