@@ -5,7 +5,7 @@ use std::path::Path;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 
-const BASE: &str = "/home/jos/Projects/rweb/html/";
+const BASE: &str = "/app/html/";
 
 async fn read_file(uri: &str) -> Result<String, Error> {
     println!("request for {}", uri);
@@ -26,6 +26,7 @@ async fn read_file(uri: &str) -> Result<String, Error> {
 }
 
 async fn server(request: Request<Body>) -> Result<Response<Body>, Infallible> {
+    println!("request: {:?}", request);
     if let Ok(response) = read_file(request.uri().path()).await {
         return Ok(Response::new(Body::from(response)));
     }
@@ -42,7 +43,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let make_svc = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(server)) });
 
-    let addr = ([127, 0, 0, 1], 3000).into();
+    let addr = "0.0.0.0:3000".parse().unwrap();
     let server = Server::bind(&addr).serve(make_svc);
     println!("Listening on http://{}", addr);
     server.await?;
