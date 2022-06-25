@@ -1,5 +1,18 @@
 FROM rust AS build
 
+WORKDIR /app
+
+# Copy Cargo files
+COPY ./Cargo.toml .
+COPY ./Cargo.lock .
+
+# Create fake main.rs file in src and build
+RUN mkdir ./src && echo 'fn main() { println!("Dummy!"); }' > ./src/main.rs
+# Fake build
+RUN cargo build && cargo clean
+RUN rm -rf ./src
+
+# now copy source, the layers above have already cached the crates.io index (unless you update Cargo.toml)
 COPY . /app
 
 RUN cd /app && cargo build

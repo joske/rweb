@@ -28,6 +28,7 @@ async fn read_file(uri: &str) -> Result<String, Error> {
     Err(Error::from(ErrorKind::NotFound))
 }
 
+/// get the base folder from args or BASE constant
 fn get_base() -> String {
     let mut base = BASE;
     let a: Vec<String> = args().collect();
